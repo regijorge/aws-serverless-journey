@@ -1,0 +1,27 @@
+service: image-analysis
+
+provider:
+  name: aws
+  profile: ofertaideal
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+  memorySize: 128
+  timeout: 45
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - rekognition:DetectLabels
+      Resource: "*"
+    - Effect: "Allow"
+      Action:
+        - translate:TranslateText
+      Resource: "*"
+
+functions:
+  analysis:
+    handler: handler.main
+    events:
+      - http:
+          method: GET
+          path: /analysis
