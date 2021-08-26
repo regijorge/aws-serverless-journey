@@ -1,0 +1,33 @@
+service: environments
+
+provider:
+  name: aws
+  profile: personal
+  runtime: nodejs12.x
+  stage: ${opt:stage, 'qa'}
+  region: us-east-1
+  iamRoleStatements:
+    ${file(./config/serverless/db.iam.role.yml)}
+  environment:
+    ${file(./config/env.${self:provider.stage}.json)}
+
+resources:
+  Resources:
+    ${file(./config/serverless/resources/dynamo.table.yml)}
+
+functions:
+  commit-message-scheduler:
+    handler: handler.scheduler
+    events:
+      - schedule:
+        rate: ${self:custom.schedulerRate}
+        name: schedule-commit-messages-${self:provider.stage}
+        description: 'Get commit messages'
+        enabled: ${self:custom.enabled}
+
+custom:
+  schedulerRate: rate(1 minute)
+  enabled: false
+  tableName: ${self:provider.environment.DbTableName}
+  dbWriteCapacityUnits: ${self:provider.environment.DbWriteCapacityUnits}
+  dbReadCapacityUnits: ${self:provider.environment.DbReadCapacityUnits}
