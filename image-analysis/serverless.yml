@@ -2,7 +2,7 @@ service: image-analysis
 
 provider:
   name: aws
-  profile: ofertaideal
+  profile: personal
   runtime: nodejs12.x
   stage: ${opt:stage, 'dev'}
   region: us-east-1
